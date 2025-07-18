@@ -3,5 +3,5 @@ project(InfoTecs)
 
 set(CMAKE_CXX_STANDARD 17)
 
-#add_subdirectory(lib)  
+add_subdirectory(lib)  
 add_subdirectory(client)

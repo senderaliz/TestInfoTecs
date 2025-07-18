@@ -1,9 +1,8 @@
-#include <iostream>
+#include "Lib.h"
 
 int main()
 {
-    std::cout << "Hello" << std::endl; 
+    myCout();
 
-    std::cout << "Hello2" << std::endl; 
     return 0;
 }
