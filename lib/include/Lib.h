@@ -7,9 +7,9 @@ namespace Lib
     public:
         enum class Level
         {
-            NON_IMPORTANT = 0,
+            LOW = 0,
             STANDART = 1,
-            IMPORTANT = 2
+            HIGH = 2
         };
 
     public:

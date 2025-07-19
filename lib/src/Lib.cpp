@@ -1,6 +1,9 @@
 #include "Lib.h"
 
 #include <fstream>
+#include <ctime>
+#include <chrono>
+#include <iomanip>
 
 class LoggerImpl : public Lib::Logger
 {
@@ -26,9 +29,27 @@ bool LoggerImpl::Init(const char *filePath, Level defaultLevel)
 
 void LoggerImpl::Log(const char *message, Level level)
 {
+
     if (level >= _defaultLevel)
     {
-        _fout << message << std::endl;
+        auto t = std::time(nullptr);
+        auto localTime = *std::localtime(&t);
+        _fout << std::put_time(&localTime, "%Y-%m-%d %H:%M:%S") << " | ";
+
+        switch (level)
+        {
+        case Lib::Logger::Level::LOW:
+            _fout << ", low, ";
+            break;
+        case Lib::Logger::Level::STANDART:
+            _fout << ", standart";
+            break;
+        case Lib::Logger::Level::HIGH:
+            _fout << ", high";
+            break;
+
+                    _fout << message << std::endl;
+        }
     }
 }
 
