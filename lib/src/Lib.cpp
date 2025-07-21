@@ -5,18 +5,19 @@
 #include <chrono>
 #include <iomanip>
 
-class LoggerImpl : public Lib::Logger
+class LoggerFile : public Lib::LoggerInterface
 {
 public:
-    bool Init(const char *filePath, Level defaultLevel) override;
+    bool Init(const char *filePath, Level defaultLevel);
     void Log(const char *message, Level level) override;
+    void SetDefaultLevel(Level level) override;
 
 private:
     Level _defaultLevel = Level::STANDART;
     std::ofstream _fout;
 };
 
-bool LoggerImpl::Init(const char *filePath, Level defaultLevel)
+bool LoggerFile::Init(const char *filePath, Level defaultLevel)
 {
     _defaultLevel = defaultLevel;
     _fout.open(filePath);
@@ -27,40 +28,49 @@ bool LoggerImpl::Init(const char *filePath, Level defaultLevel)
     return true;
 }
 
-void LoggerImpl::Log(const char *message, Level level)
+void LoggerFile::Log(const char *message, Level level)
 {
-
     if (level >= _defaultLevel)
     {
         auto t = std::time(nullptr);
+
         auto localTime = *std::localtime(&t);
         _fout << std::put_time(&localTime, "%Y-%m-%d %H:%M:%S") << " | ";
 
         switch (level)
         {
-        case Lib::Logger::Level::LOW:
-            _fout << ", low, ";
+        case Lib::LoggerInterface::Level::LOW:
+            _fout << "low | ";
             break;
-        case Lib::Logger::Level::STANDART:
-            _fout << ", standart";
+        case Lib::LoggerInterface::Level::STANDART:
+            _fout << "standart | ";
             break;
-        case Lib::Logger::Level::HIGH:
-            _fout << ", high";
+        case Lib::LoggerInterface::Level::HIGH:
+            _fout << "high | ";
             break;
-
-                    _fout << message << std::endl;
         }
+        _fout << message << std::endl;
     }
 }
 
-Lib::Logger *Lib::CreateLogger()
+void LoggerFile::SetDefaultLevel(Level level)
 {
-    Logger *ptr = new LoggerImpl;
+    _defaultLevel = level;
+}
+
+Lib::LoggerInterface *Lib::CreateLoggerFile(const char *filePath, LoggerInterface::Level defaultLevel)
+{
+    auto *ptr = new LoggerFile;
+    if (!ptr->Init(filePath, defaultLevel))
+    {
+        delete ptr;
+        return nullptr;
+    }
     return ptr;
 }
 
-void Lib::DeleteLogger(Logger *ptr)
+void Lib::DeleteLoggerFile(LoggerInterface *ptr)
 {
-    LoggerImpl *truePtr = (LoggerImpl *)ptr;
+    LoggerFile *truePtr = (LoggerFile *)ptr;
     delete truePtr;
 }

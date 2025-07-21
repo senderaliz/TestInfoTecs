@@ -1,22 +1,23 @@
 #pragma once
+#include <iostream>
 
 namespace Lib
 {
-    class Logger
+    class LoggerInterface
     {
     public:
         enum class Level
         {
-            LOW = 0,
-            STANDART = 1,
-            HIGH = 2
+            LOW = 1,
+            STANDART = 2,
+            HIGH = 3
         };
 
     public:
-        virtual bool Init(const char* filePath, Level defaultLevel) = 0;
         virtual void Log(const char* message, Level level) = 0;
+        virtual void SetDefaultLevel(Level level) = 0;
     };
 
-    Logger* CreateLogger();
-    void DeleteLogger(Logger* ptr);
+    LoggerInterface* CreateLoggerFile(const char *filePath, LoggerInterface::Level defaultLevel);
+    void DeleteLoggerFile(LoggerInterface* ptr);
 }
