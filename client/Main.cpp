@@ -26,14 +26,14 @@ int main()
 
     std::cin >> levelInt;
 
-    auto level = GetLogLevel(levelInt);
-    if (!level.first)
+    auto levelDefault = GetLogLevel(levelInt);
+    if (!levelDefault.first)
     {
         std::cout << "Incorrect importance level value " << std::endl;
         return 1;
     }
 
-    logger = Lib::CreateLoggerFile(logFilePath.c_str(), level.second);
+    logger = Lib::CreateLoggerFile(logFilePath.c_str(), levelDefault.second);
     if (logger == nullptr)
     {
         std::cout << "Incorrect importance level value" << std::endl;
@@ -58,30 +58,40 @@ int main()
             std::cout << "\nEnter the importance of the message: ";
             std::cout << "\n[1] - low," << "\n[2] - standart" << "\n[3] - high" << std::endl;
             std::cin >> levelInt;
-            level = GetLogLevel(levelInt);
-            if (!level.first)
+            levelDefault = GetLogLevel(levelInt);
+            if (!levelDefault.first)
             {
                 std::cout << "Incorrect importance level value" << std::endl;
                 continue;
             }
-            logger->SetDefaultLevel(level.second);
+            logger->SetDefaultLevel(levelDefault.second);
             break;
 
         case 2:
             std::cout << "Enter message importance level: ";
-            std::cout << "\n[1] - low," << "\n[2] - standart" << "\n[3] - high" << std::endl;
+            std::cout << "\n[1] - low," << "\n[2] - standart" << "\n[3] - high" << "\n[4] - default" << std::endl;
             std::cin >> levelInt;
-            level = GetLogLevel(levelInt);
-            if (!level.first)
+            Lib::LoggerInterface::Level levelMsg;
+            if (levelInt == 4)
             {
-                std::cout << "Incorrect importance level value" << std::endl;
-                continue;
+                levelMsg = levelDefault.second;
+            }
+            else
+            {
+                auto levelMsgTemp = GetLogLevel(levelInt);
+                if (!levelMsgTemp.first)
+                {
+                    std::cout << "Incorrect importance level value" << std::endl;
+                    continue;
+                }
+                levelMsg = levelMsgTemp.second;
             }
 
             std::cout << "Enter your message: ";
-            std::cin >> message;
+            std::cin.ignore();
+            std::getline(std::cin, message);
 
-            logger->Log(message.c_str(), level.second);
+            logger->Log(message.c_str(), levelMsg);
             break;
 
         case 3:
