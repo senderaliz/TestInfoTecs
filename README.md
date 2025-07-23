@@ -11,4 +11,6 @@ Path to the text log file.
 Default message importance level (specified as a number: 1 - low, 2 - standard, 3 - high).
 
 Example of running the program:
+```
 ./сlient log.txt 2
+```
