@@ -14,12 +14,12 @@ std::pair<bool, Lib::LoggerInterface::Level> GetLogLevel(int levelInt)
     return std::pair(true, level);
 }
 
-int main()
+int main(int argc, const char** argv)
 {
     bool wasInit = false;
     bool execution = true;
-    int levelInt = 1;
-    std::string logFilePath;
+    int levelInt = std::stoi(argv[2]);
+    std::string logFilePath(argv[1]);
     Lib::LoggerInterface *logger = nullptr;
 
     std::queue<std::pair<std::string, Lib::LoggerInterface::Level>> queueMessage;
@@ -60,14 +60,6 @@ int main()
                            } }
 
     );
-
-    std::cout << "Specify the location of the file: ";
-    std::cin >> logFilePath;
-
-    std::cout << "Initialization, specify the message importance threshold" << std::endl;
-    std::cout << "\n[1] - low," << "\n[2] - standart" << "\n[3] - high" << std::endl;
-
-    std::cin >> levelInt;
 
     auto levelDefault = GetLogLevel(levelInt);
     if (!levelDefault.first)
