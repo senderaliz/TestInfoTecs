@@ -43,15 +43,20 @@ int main()
                                 continue;
                                }
                                
-                                queueMutex.lock();
+                               queueMutex.lock();
                                if (!queueMessage.empty())
                                {
                                 auto msg = queueMessage.front();
                                 queueMessage.pop();
+                                queueMutex.unlock();
                                 logger->Log(msg.first.c_str(), msg.second);
-                               }   
-                               queueMutex.unlock();
-                               baseMutex.unlock();
+                               } 
+                               else
+                               {
+                                queueMutex.unlock();
+                               }
+                                baseMutex.unlock();
+                               
                            } }
 
     );
@@ -68,7 +73,9 @@ int main()
     if (!levelDefault.first)
     {
         std::cout << "Incorrect importance level value " << std::endl;
+        baseMutex.lock();
         execution = false;
+        baseMutex.unlock();
         thread.join();
         return 1;
     }
