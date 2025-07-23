@@ -1,5 +1,9 @@
 #include "Lib.h"
 
+#include <thread>
+#include <mutex>
+#include <queue>
+
 std::pair<bool, Lib::LoggerInterface::Level> GetLogLevel(int levelInt)
 {
     auto level = Lib::LoggerInterface::Level(levelInt);
@@ -18,6 +22,40 @@ int main()
     std::string logFilePath;
     Lib::LoggerInterface *logger = nullptr;
 
+    std::queue<std::pair<std::string, Lib::LoggerInterface::Level>> queueMessage;
+    std::mutex queueMutex;
+    std::mutex baseMutex;
+    std::thread thread([&queueMessage, &queueMutex, &execution, &logger, &baseMutex]()
+                       {
+                           while (true)
+                           {
+                               baseMutex.lock();
+                               
+                               if (!execution)
+                               {
+                                    baseMutex.unlock();
+                                   break;
+                               }
+                        
+                               if (logger==nullptr)
+                               {
+                                baseMutex.unlock();
+                                continue;
+                               }
+                               
+                                queueMutex.lock();
+                               if (!queueMessage.empty())
+                               {
+                                auto msg = queueMessage.front();
+                                queueMessage.pop();
+                                logger->Log(msg.first.c_str(), msg.second);
+                               }   
+                               queueMutex.unlock();
+                               baseMutex.unlock();
+                           } }
+
+    );
+
     std::cout << "Specify the location of the file: ";
     std::cin >> logFilePath;
 
@@ -30,13 +68,21 @@ int main()
     if (!levelDefault.first)
     {
         std::cout << "Incorrect importance level value " << std::endl;
+        execution = false;
+        thread.join();
         return 1;
     }
 
+    baseMutex.lock();
     logger = Lib::CreateLoggerFile(logFilePath.c_str(), levelDefault.second);
+    baseMutex.unlock();
     if (logger == nullptr)
     {
         std::cout << "Incorrect importance level value" << std::endl;
+        baseMutex.lock();
+        execution = false;
+        baseMutex.unlock();
+        thread.join();
         return 1;
     }
 
@@ -64,7 +110,10 @@ int main()
                 std::cout << "Incorrect importance level value" << std::endl;
                 continue;
             }
+
+            baseMutex.lock();
             logger->SetDefaultLevel(levelDefault.second);
+            baseMutex.unlock();
             break;
 
         case 2:
@@ -91,12 +140,18 @@ int main()
             std::cin.ignore();
             std::getline(std::cin, message);
 
-            logger->Log(message.c_str(), levelMsg);
+            queueMutex.lock();
+            queueMessage.emplace(message, levelMsg);
+            queueMutex.unlock();
             break;
 
         case 3:
             std::cout << "The program is terminating its work." << std::endl;
+
+            baseMutex.lock();
             execution = false;
+            baseMutex.unlock();
+
             continue;
 
         default:
@@ -104,5 +159,6 @@ int main()
             continue;
         }
     }
+    thread.join();
     return 0;
 }
