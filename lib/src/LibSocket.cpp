@@ -2,13 +2,14 @@
 
 #include <cstring>
 #include <cstdio>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
 #include <ctime>
 #include <chrono>
 #include <sstream>
 #include <iomanip>
+
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 
 class LoggerSocket : public Lib::LoggerInterface
 {
@@ -58,10 +59,10 @@ void LoggerSocket::Log(const char *message, Level level)
         }
         oss << message << std::endl;
 
-        send(_sock, oss.str().c_str(), oss.str().length(),MSG_DONTWAIT);
-
+        send(_sock, oss.str().c_str(), oss.str().length(), MSG_DONTWAIT);
     }
 }
+
 void LoggerSocket::SetDefaultLevel(Level level)
 {
     _defaultLevel = level;
