@@ -71,6 +71,5 @@ Lib::LoggerInterface *Lib::CreateLoggerFile(const char *filePath, LoggerInterfac
 
 void Lib::DeleteLoggerFile(LoggerInterface *ptr)
 {
-    LoggerFile *truePtr = (LoggerFile *)ptr;
-    delete truePtr;
+    delete ptr;
 }
